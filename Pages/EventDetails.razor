@@ -1,0 +1,48 @@
+@page "/events/{Id:int}"
+@using EventEase.Models
+@using EventEase.Services
+@inject EventService EventServiceInstance
+
+<PageTitle>Event Details</PageTitle>
+
+@if (EventItem is null)
+{
+    <div class="alert alert-warning">Event not found. Please return to the event list.</div>
+    <NavLink class="btn btn-secondary" href="/events">Back to events</NavLink>
+}
+else
+{
+    <h1>@EventItem.Name</h1>
+    <p class="mb-1"><strong>Date:</strong> @EventItem.Date.ToString("MMMM d, yyyy")</p>
+    <p class="mb-3"><strong>Location:</strong> @EventItem.Location</p>
+    <p class="mb-3"><strong>Current Attendance:</strong> @RegistrationService.GetAttendanceCount(EventItem.Id)</p>
+    <p>@EventItem.Description</p>
+
+    @if (EventItem.Attendees.Any())
+    {
+        <h3>Registered Attendees</h3>
+        <ul>
+            @foreach (var attendee in EventItem.Attendees)
+            {
+                <li>@attendee.Name (@attendee.Email)</li>
+            }
+        </ul>
+    }
+
+    <div class="mt-4">
+        <NavLink class="btn btn-primary me-2" href="/events/register">Register for this event</NavLink>
+        <NavLink class="btn btn-outline-secondary" href="/events">Back to list</NavLink>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private EventInfo? EventItem { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        EventItem = EventServiceInstance.GetEventById(Id);
+    }
+}

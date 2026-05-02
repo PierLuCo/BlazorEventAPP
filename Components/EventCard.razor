@@ -1,0 +1,29 @@
+@using System.ComponentModel.DataAnnotations
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">@EventName</h5>
+        <p class="card-text mb-1"><strong>Date:</strong> @EventDate.ToString("MMMM d, yyyy")</p>
+        <p class="card-text mb-1"><strong>Location:</strong> @Location</p>       
+        @if (!string.IsNullOrEmpty(DetailsUrl))
+        {
+            <NavLink class="btn btn-primary mt-2" href="@DetailsUrl">View details and register</NavLink>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string EventName { get; set; } = string.Empty;
+
+    [Parameter]
+    public DateTime EventDate { get; set; } = DateTime.Today;
+
+    [Parameter]
+    public string Location { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? DetailsUrl { get; set; }
+
+   
+}

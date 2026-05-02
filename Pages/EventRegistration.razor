@@ -1,0 +1,76 @@
+@page "/events/register"
+@using EventEase.Models
+@using EventEase.Services
+
+<PageTitle>Register</PageTitle>
+
+<h1>Event Registration</h1>
+<p class="mb-4">This registration form uses data binding so the fields update dynamically as the user types.</p>
+
+<EditForm Model="Registration" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Event</label>
+        <InputSelect class="form-select" @bind-Value="Registration.EventId">
+            @foreach (var option in Events)
+            {
+                <option value="@option.Id">@option.Name</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => Registration.EventId)" class="text-danger" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Full name</label>
+        <InputText class="form-control" @bind-Value="Registration.AttendeeName" />
+        <ValidationMessage For="@(() => Registration.AttendeeName)" class="text-danger" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="Registration.Email" />
+        <ValidationMessage For="@(() => Registration.Email)" class="text-danger" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit registration</button>
+    <NavLink class="btn btn-link ms-2" href="/events">Back to events</NavLink>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(SubmissionMessage))
+{
+    <div class="alert alert-success mt-4">@SubmissionMessage</div>
+}
+
+@code {
+    @inject UserSessionService UserSession
+    @inject EventService EventServiceInstance
+
+    private Registration Registration { get; set; } = new();
+
+    private string? SubmissionMessage { get; set; }
+
+    private List<EventInfo> Events => EventServiceInstance.GetAllEvents();
+
+    private async Task HandleSubmit()
+    {
+        var selectedEvent = EventServiceInstance.GetEventById(Registration.EventId);
+        if (selectedEvent != null)
+        {
+            EventServiceInstance.AddAttendee(Registration.EventId, new Attendee
+            {
+                Name = Registration.AttendeeName,
+                Email = Registration.Email
+            });
+            RegistrationService.AddRegistration(new Registration
+            {
+                EventId = Registration.EventId,
+                AttendeeName = Registration.AttendeeName,
+                Email = Registration.Email
+            });
+        }
+        SubmissionMessage = $"Thanks {Registration.AttendeeName}, your registration for {selectedEvent?.Name ?? "the event"} is confirmed.";
+        Registration = new Registration();
+    }
+}

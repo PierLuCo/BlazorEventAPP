@@ -1,0 +1,30 @@
+@page "/"
+@page "/events"
+@using EventEase.Models
+@using EventEase.Components
+@using EventEase.Services
+
+@inject EventService EventServiceInstance
+
+<PageTitle>Events</PageTitle>
+
+<h1>Upcoming Events</h1>
+<p class="mb-4">Browse our event list and click through for details or registration.</p>
+
+<div class="row">
+    @foreach (var eventItem in EventData)
+    {
+        <div class="col-md-3" @key="eventItem.Id">
+            <EventCard EventName="@eventItem.Name"
+                       EventDate="@eventItem.Date"
+                       Location="@eventItem.Location"
+                       DetailsUrl="@GetEventDetailsUrl(eventItem.Id)" />
+        </div>
+    }
+</div>
+
+@code {
+    private List<EventInfo> EventData => EventServiceInstance.GetAllEvents();
+
+    private string GetEventDetailsUrl(int id) => $"/events/{id}";
+}
